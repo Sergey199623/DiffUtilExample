@@ -1,4 +1,4 @@
-package com.belyakov.recyclerview.model
+package com.belyakov.recyclerview.data.model
 
 data class User(
     val id: Long,

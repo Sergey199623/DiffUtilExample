@@ -1,7 +1,7 @@
 package com.belyakov.recyclerview
 
 import androidx.recyclerview.widget.DiffUtil
-import com.belyakov.recyclerview.model.User
+import com.belyakov.recyclerview.data.model.User
 
 class UsersDiffCallback(
     private val oldList: List<User>,

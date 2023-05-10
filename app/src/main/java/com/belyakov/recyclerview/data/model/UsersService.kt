@@ -1,5 +1,6 @@
-package com.belyakov.recyclerview.model
+package com.belyakov.recyclerview.data.model
 
+import com.belyakov.recyclerview.UserNotFoundException
 import com.github.javafaker.Faker
 import java.util.Collections
 
@@ -25,6 +26,14 @@ class UsersService {
     }
 
     fun getUsers(): List<User> = users
+
+    fun getUserByIde(id: Long): UserDetails {
+        val user = users.firstOrNull { it.id == id } ?: throw UserNotFoundException()
+        return UserDetails(
+            user = user,
+            details = Faker.instance().lorem().paragraphs(3).joinToString("\n\n")
+        )
+    }
 
     fun deleteUser(user: User) {
         val indexToDelete = indexOfCurrentUser(user)
@@ -69,7 +78,7 @@ class UsersService {
 
     private fun notifyChanges() = listeners.forEach { it.invoke(users) }
 
-    private fun indexOfCurrentUser(user: User) : Int = users.indexOfFirst { it.id == user.id }
+    private fun indexOfCurrentUser(user: User): Int = users.indexOfFirst { it.id == user.id }
 
     private companion object {
         val IMAGES = mutableListOf(

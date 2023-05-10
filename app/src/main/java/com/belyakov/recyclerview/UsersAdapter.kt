@@ -8,7 +8,7 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.belyakov.recyclerview.databinding.ItemUserBinding
-import com.belyakov.recyclerview.model.User
+import com.belyakov.recyclerview.data.model.User
 import com.bumptech.glide.Glide
 
 class UsersAdapter(

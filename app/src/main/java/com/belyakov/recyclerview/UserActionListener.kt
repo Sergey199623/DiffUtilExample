@@ -1,6 +1,6 @@
 package com.belyakov.recyclerview
 
-import com.belyakov.recyclerview.model.User
+import com.belyakov.recyclerview.data.model.User
 
 interface UserActionListener {
 
