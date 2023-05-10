@@ -9,13 +9,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.belyakov.recyclerview.databinding.ItemUserBinding
 import com.belyakov.recyclerview.data.model.User
+import com.belyakov.recyclerview.data.model.UserListItem
 import com.bumptech.glide.Glide
 
 class UsersAdapter(
     private val actionListener: UserActionListener
 ) : RecyclerView.Adapter<UsersAdapter.UsersViewHolder>(), View.OnClickListener {
 
-    var users: List<User> = emptyList()
+    var users: List<UserListItem> = emptyList()
         set(newValue) {
             val diffCallback = UsersDiffCallback(field, newValue)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
@@ -38,7 +39,6 @@ class UsersAdapter(
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemUserBinding.inflate(inflater, parent, false)
 
-        binding.root.setOnClickListener(this)
         binding.moreImageViewBtn.setOnClickListener(this)
 
         return UsersViewHolder(binding)
@@ -46,11 +46,22 @@ class UsersAdapter(
 
     // Обновление элемента списка
     override fun onBindViewHolder(holder: UsersViewHolder, position: Int) {
-        val user = users[position]
+        val userListItem = users[position]
+        val user = userListItem.user
         val context = holder.itemView.context
         with(holder.binding) {
             holder.itemView.tag = user
             moreImageViewBtn.tag = user
+
+            if (userListItem.isInProgress) {
+                moreImageViewBtn.visibility = View.INVISIBLE
+                itemProgressBar.visibility = View.VISIBLE
+                holder.binding.root.setOnClickListener(null)
+            } else {
+                moreImageViewBtn.visibility = View.VISIBLE
+                itemProgressBar.visibility = View.GONE
+                holder.binding.root.setOnClickListener(this@UsersAdapter)
+            }
 
             userNameTv.text = user.name
             userCompanyTv.text = user.company.ifBlank { context.getString(R.string.unemployed) }
@@ -69,7 +80,7 @@ class UsersAdapter(
     private fun showPopupMenu(view: View) {
         val popupMenu = PopupMenu(view.context, view)
         val user = view.tag as User
-        val position = users.indexOfFirst { it.id == user.id }
+        val position = users.indexOfFirst { it.user.id == user.id }
 
         // Можно перемещать наверх только если позиция не равна 1
         popupMenu.menu.add(0, ID_MOVE_UP, Menu.NONE, "Move Up").apply {
@@ -94,7 +105,6 @@ class UsersAdapter(
             }
             return@setOnMenuItemClickListener true
         }
-
         popupMenu.show()
     }
 

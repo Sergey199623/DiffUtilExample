@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground" >
+    android:background="?android:attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/photoImageView"
@@ -21,14 +21,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="6dp"
         android:ellipsize="end"
+        android:lines="1"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@id/moreImageViewBtn"
         app:layout_constraintStart_toEndOf="@id/photoImageView"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="John Wick" />
+        app:layout_constraintTop_toTopOf="@id/photoImageView"
+        tools:text="John Smith" />
 
     <TextView
         android:id="@+id/userCompanyTv"
@@ -36,12 +36,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:ellipsize="end"
-        android:textColor="@color/black"
+        android:lines="1"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@id/moreImageViewBtn"
         app:layout_constraintStart_toStartOf="@id/userNameTv"
         app:layout_constraintTop_toBottomOf="@id/userNameTv"
-        tools:text="Google inc." />
+        tools:text="Google Inc." />
 
     <ImageView
         android:id="@+id/moreImageViewBtn"
@@ -54,6 +54,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/itemProgressBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/moreImageViewBtn"
+        app:layout_constraintEnd_toEndOf="@id/moreImageViewBtn"
+        app:layout_constraintStart_toStartOf="@id/moreImageViewBtn"
+        app:layout_constraintTop_toTopOf="@id/moreImageViewBtn" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"

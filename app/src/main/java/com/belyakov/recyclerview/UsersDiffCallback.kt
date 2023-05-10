@@ -1,11 +1,11 @@
 package com.belyakov.recyclerview
 
 import androidx.recyclerview.widget.DiffUtil
-import com.belyakov.recyclerview.data.model.User
+import com.belyakov.recyclerview.data.model.UserListItem
 
 class UsersDiffCallback(
-    private val oldList: List<User>,
-    private val newList: List<User>
+    private val oldList: List<UserListItem>,
+    private val newList: List<UserListItem>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = oldList.size
@@ -16,7 +16,7 @@ class UsersDiffCallback(
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         val oldUser = oldList[oldItemPosition]
         val newUser = newList[newItemPosition]
-        return oldUser.id == newUser.id
+        return oldUser.user.id == newUser.user.id
     }
 
     // Проверка содержимого элемента, поменялось ли оно (сравниваем контент в User)

@@ -10,10 +10,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.belyakov.recyclerview.R
 import com.belyakov.recyclerview.databinding.FragmentUserDetailsBinding
-import com.belyakov.recyclerview.databinding.FragmentUsersListBinding
 import com.belyakov.recyclerview.presentation.screens.factory
 import com.belyakov.recyclerview.presentation.screens.navigator
 import com.belyakov.recyclerview.presentation.screens.viewModels.UserDetailsViewModel
+import com.belyakov.recyclerview.tasks.SuccessResult
 import com.bumptech.glide.Glide
 
 class UserDetailsFragment : Fragment() {
@@ -30,32 +30,49 @@ class UserDetailsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentUserDetailsBinding.inflate(inflater, container, false)
+    ): View? {
+        binding = FragmentUserDetailsBinding.inflate(layoutInflater, container, false)
 
-        viewModel.userDetails.observe(viewLifecycleOwner) {
-            binding.userNameTextView.text = it.user.name
-            binding.userDetailsTextView.text = it.details
-            if (it.user.photo.isNotBlank()) {
-                Glide.with(this)
-                    .load(it.user.photo)
-                    .circleCrop()
-                    .into(binding.photoImageView)
+        viewModel.actionShowToast.observe(viewLifecycleOwner, Observer {
+            it.getValue()?.let { messageRes -> navigator().showToast(messageRes) }
+        })
+        viewModel.actionGoBack.observe(viewLifecycleOwner, Observer {
+            it.getValue()?.let { navigator().goBack() }
+        })
+
+        viewModel.state.observe(viewLifecycleOwner, Observer {
+            binding.contentContainer.visibility = if (it.showContent) {
+                val userDetails = (it.userDetailsResult as SuccessResult).data
+                binding.userNameTextView.text = userDetails.user.name
+                if (userDetails.user.photo.isNotBlank()) {
+                    Glide.with(this)
+                        .load(userDetails.user.photo)
+                        .circleCrop()
+                        .into(binding.photoImageView)
+                } else {
+                    Glide.with(this)
+                        .load(R.drawable.ic_default_avatar)
+                        .into(binding.photoImageView)
+                }
+                binding.userDetailsTextView.text = userDetails.details
+                View.VISIBLE
             } else {
-                Glide.with(this)
-                    .load(R.drawable.ic_default_avatar)
-                    .into(binding.photoImageView)
+                View.GONE
             }
-        }
+
+            binding.progressBar.visibility = if (it.showProgress) View.VISIBLE else View.GONE
+            binding.deleteButton.isEnabled = it.enableDeleteButton
+        })
 
         binding.deleteButton.setOnClickListener {
             viewModel.deleteUser()
-            navigator().goBack()
         }
+
         return binding.root
     }
 
     companion object {
+
         private const val ARG_USER_ID = "ARG_USER_ID"
 
         fun newInstance(userId: Long): UserDetailsFragment {
@@ -63,5 +80,6 @@ class UserDetailsFragment : Fragment() {
             fragment.arguments = bundleOf(ARG_USER_ID to userId)
             return fragment
         }
+
     }
 }

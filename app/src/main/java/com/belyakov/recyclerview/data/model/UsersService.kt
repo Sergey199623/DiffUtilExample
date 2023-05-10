@@ -1,21 +1,26 @@
 package com.belyakov.recyclerview.data.model
 
 import com.belyakov.recyclerview.UserNotFoundException
+import com.belyakov.recyclerview.tasks.SimpleTask
+import com.belyakov.recyclerview.tasks.Task
 import com.github.javafaker.Faker
 import java.util.Collections
+import java.util.concurrent.Callable
 
 typealias UsersListener = (users: List<User>) -> Unit
 
 class UsersService {
 
     private var users = mutableListOf<User>()
+    private var loaded = false
 
     private val listeners = mutableListOf<UsersListener>()
 
-    init {
+    fun loadUsers(): Task<Unit> = SimpleTask {
+        Thread.sleep(TIME_TO_SLEEP)
         val faker = Faker.instance()
         IMAGES.shuffle()
-        users = (1..100).map {
+        users = (1..20).map {
             User(
                 id = it.toLong(),
                 name = faker.name().name(),
@@ -23,25 +28,27 @@ class UsersService {
                 photo = IMAGES[it % IMAGES.size]
             )
         }.toMutableList()
+        loaded = true
+        notifyChanges()
     }
 
-    fun getUsers(): List<User> = users
-
-    fun getUserByIde(id: Long): UserDetails {
+    fun getUserByIde(id: Long): Task<UserDetails> = SimpleTask(Callable {
+        Thread.sleep(TIME_TO_SLEEP)
         val user = users.firstOrNull { it.id == id } ?: throw UserNotFoundException()
-        return UserDetails(
+        return@Callable UserDetails(
             user = user,
             details = Faker.instance().lorem().paragraphs(3).joinToString("\n\n")
         )
-    }
+    })
 
-    fun deleteUser(user: User) {
-        val indexToDelete = indexOfCurrentUser(user)
+    fun deleteUser(user: User): Task<Unit> = SimpleTask<Unit>(Callable {
+        Thread.sleep(TIME_TO_SLEEP)
+        val indexToDelete = users.indexOfFirst { it.id == user.id }
         if (indexToDelete != -1) {
             users.removeAt(indexToDelete)
             notifyChanges()
         }
-    }
+    })
 
     /**
      * Данные метод отвечает за перемещение (свайп) одного итема recyclerView на место другого.
@@ -50,37 +57,43 @@ class UsersService {
      *  @param user - текущий пользователь
      *  @param position - позиция перемещения
      */
-    fun moveUser(user: User, position: Int) {
-        val oldIndex = indexOfCurrentUser(user)
-        if (oldIndex == -1) return
+    fun moveUser(user: User, position: Int): Task<Unit> = SimpleTask<Unit>(Callable {
+        Thread.sleep(TIME_TO_SLEEP)
+        val oldIndex = users.indexOfFirst { it.id == user.id }
+        if (oldIndex == -1) return@Callable
         val newIndex = oldIndex + position
-        if (newIndex < 0 || newIndex >= users.size) return
+        if (newIndex < 0 || newIndex >= users.size) return@Callable
         users = ArrayList(users)
         Collections.swap(users, oldIndex, newIndex)
         notifyChanges()
-    }
+    })
 
-    fun fireUser(user: User) {
-        val index = indexOfCurrentUser(user)
-        if (index == -1) return
+    fun fireUser(user: User) : Task<Unit> = SimpleTask<Unit>(Callable {
+        Thread.sleep(TIME_TO_SLEEP)
+        val index = users.indexOfFirst { it.id == user.id }
+        if (index == -1) return@Callable
         val updateUser = users[index].copy(company = "")
         users = ArrayList(users)
         users[index] = updateUser
         notifyChanges()
-    }
+    })
 
     fun addListener(listener: UsersListener) {
         listeners.add(listener)
-        listener.invoke(users)
+        if (loaded) {
+            listener.invoke(users)
+        }
     }
 
     fun removeListener(listener: UsersListener) = listeners.remove(listener)
 
-    private fun notifyChanges() = listeners.forEach { it.invoke(users) }
-
-    private fun indexOfCurrentUser(user: User): Int = users.indexOfFirst { it.id == user.id }
+    private fun notifyChanges() {
+        if (!loaded) return
+        listeners.forEach { it.invoke(users) }
+    }
 
     private companion object {
+        const val TIME_TO_SLEEP = 2000L
         val IMAGES = mutableListOf(
             "https://images.unsplash.com/photo-1600267185393-e158a98703de?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&ixid=MnwxfDB8MXxyYW5kb218fHx8fHx8fHwxNjI0MDE0NjQ0&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800",
             "https://images.unsplash.com/photo-1579710039144-85d6bdffddc9?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&ixid=MnwxfDB8MXxyYW5kb218fHx8fHx8fHwxNjI0MDE0Njk1&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800",
