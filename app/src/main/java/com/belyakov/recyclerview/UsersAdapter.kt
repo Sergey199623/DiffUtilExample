@@ -1,6 +1,5 @@
 package com.belyakov.recyclerview
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
@@ -17,12 +16,11 @@ class UsersAdapter(
 ) : RecyclerView.Adapter<UsersAdapter.UsersViewHolder>(), View.OnClickListener {
 
     var users: List<User> = emptyList()
-        @SuppressLint("NotifyDataSetChanged")
         set(newValue) {
             val diffCallback = UsersDiffCallback(field, newValue)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             field = newValue
-            diffResult.dispatchUpdatesTo(this) // передаем изменение нашему адаптеруПро
+            diffResult.dispatchUpdatesTo(this) // передаем изменение нашему адаптеру (вместо notifyDataSetChanged())
         }
 
     override fun onClick(v: View) {
@@ -104,10 +102,10 @@ class UsersAdapter(
         val binding: ItemUserBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
-    companion object {
-        private const val ID_MOVE_UP = 1
-        private const val ID_MOVE_DOWN = 2
-        private const val ID_REMOVE = 3
-        private const val ID_FIRE = 4
+    private companion object {
+        const val ID_MOVE_UP = 1
+        const val ID_MOVE_DOWN = 2
+        const val ID_REMOVE = 3
+        const val ID_FIRE = 4
     }
 }
